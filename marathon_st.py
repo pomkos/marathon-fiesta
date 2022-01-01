@@ -13,6 +13,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import geopandas as gpd
 
+st.set_page_config(page_title='Marathon Predictor', page_icon=':run:')
+
 def load_data():
     '''
     Loads previously saved data from the sqlite db
@@ -67,34 +69,44 @@ def feature_engineer(dataframe):
 
 def plot_data(dataframe):
     g = sns.catplot(x='Sex', data=dataframe, kind='count')
+    person_stats = dataframe.groupby('State').count()['PersonId'].reset_index()
+    fig = px.choropleth(person_stats, 
+                    color='PersonId',
+                    locations=person_stats['State'], 
+                    locationmode="USA-states", 
+                    scope="usa",
+                    title='Origin of Akron Marathon runners',
+                    hover_data=['PersonId'],
+                    labels={'PersonId':'Participants'}
+                    )
+    st.plotly_chart(fig)
+    st.write("The vast, vast majority of Akron Marathon runners between 2017-2021 were from Ohio.")
+    col1, col2 = st.columns(2)
+
     plt.title('Gender distribution')
-    st.pyplot(g)
+    with col1:
+        st.pyplot(g)
+        st.write('More males than females participated.')
     
     g = sns.catplot(x='AgeDiv', data=dataframe, kind='count', hue='Sex')
     plt.xticks(rotation=45, horizontalalignment='right')
     plt.title('Age distribution')
-    st.pyplot(g)
+    with col2:
+        st.pyplot(g)
+        st.write('And the age distribution follows a normal curve, with the bulk of runners between 19 and 54.')
     
     g = sns.catplot(x='AgeDiv', y='pace', data=dataframe, kind='box', hue='Sex')
     plt.xticks(rotation=45, horizontalalignment='right')
     plt.title('Pace distribution by age and sex')
     plt.ylabel('Minutes per mile')
     st.pyplot(g)
+    st.write("__Example__: 32 year old males ran at a pace of around 9.8 minutes/mile on average. Around 75% of them ran between 7.4 and 11.4 minutes/mile.")
     
-    person_stats = dataframe.groupby('State').count()['PersonId'].reset_index()
-    fig = px.choropleth(person_stats, 
-                    locations=person_stats['State'], 
-                    locationmode="USA-states", 
-                    scope="usa",
-                    title='Origin of Akron Marathon runners',
-                    hover_data=['PersonId']
-                    )
-    st.plotly_chart(fig)
 
 def user_data(dataframe):
     
-    col1, col2 = st.beta_columns(2)
-    col3, col4 = st.beta_columns(2)
+    col1, col2 = st.columns(2)
+    col3, col4 = st.columns(2)
     with col1:
         sex = st.selectbox("Gender", options=['Female', 'Male'])
         pace = st.number_input('Most recent minutes per mile', value=15.3)
@@ -133,7 +145,7 @@ def user_data(dataframe):
 
 def user_predict(user_df, model):
     prediction = model.predict(user_df)
-    statement = f"We predict that overall you will place in the __{round(prediction[0], 2)}th percentile!__"
+    statement = f"We predict that you will run __faster than {round(prediction[0], 2)}%__ of people your age and gender!"
     if prediction[0] >= 75:
         st.success(statement)
     elif prediction[0]<= 30:
@@ -151,7 +163,7 @@ def model(dataframe):
     feature_cols = [col for col in dataframe.columns if col not in misc_cols]
 
     X = dataframe[feature_cols]
-    y = dataframe['OverallPercentile']
+    y = dataframe['DivPlPercentile']
     X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=0.3, random_state=42)
 
     rf = RandomForestRegressor(random_state=42)
@@ -169,12 +181,12 @@ def plot_user(dataframe, user_df):
     female = dataframe[dataframe['Sex']=='F']
     male = dataframe[dataframe['Sex']=='M']
     
-    col1, col2 = st.beta_columns(2)
-    fem_plot = sns.relplot(x='pace', y='OverallPercentile', data=female)
+    col1, col2 = st.columns(2)
+    fem_plot = sns.relplot(x='pace', y='DivPlPercentile', data=female)
     plt.title('Pace and percentile rank of female runners')
     if sex == 'F':
         plt.plot(user_pace, user_percentile, 'r+', markersize=20)
-    mal_plot = sns.relplot(x='pace', y='OverallPercentile', data=male)
+    mal_plot = sns.relplot(x='pace', y='DivPlPercentile', data=male)
     plt.title('Pace and percentile rank of male runners')
     if sex == 'M':
         plt.plot(user_pace, user_percentile, 'r+', markersize=20)
@@ -182,7 +194,7 @@ def plot_user(dataframe, user_df):
         st.pyplot(fem_plot)
     with col2:
         st.pyplot(mal_plot)
-    st.info('The relationship between minutes per mile and Overall Placement in Akron Marathons, the `+` represents your pace and predicted placement')
+    st.info('The relationship between minutes per mile and Division Placement in Akron Marathons, the `+` represents your pace and predicted placement')
 
     
 def plot_result(y_predict, y_test, X_test, title, score):
@@ -192,8 +204,8 @@ def plot_result(y_predict, y_test, X_test, title, score):
     graph_data['predict'] = y_predict
 
     g = sns.relplot(x='y', y='predict', hue='Sex', data=graph_data)
-    plt.xlabel('Predicted Overall Percentile Placement')
-    plt.ylabel('Actual Overall Percentile Placement')
+    plt.xlabel('Predicted Division Percentile Placement')
+    plt.ylabel('Actual Division Percentile Placement')
     plt.title(f"Performance of RandomForest Model (R2={round(score,2)})")
     st.pyplot(g)
     st.info("This plot demonstrates the scores our model got right")
@@ -205,15 +217,15 @@ def app():
 
     st.title('Marathon Predictor')
 
-    st.write('A fun little tool to predict your percentile placement in the Akron Marathon. Not very accurate, but very cool.')
+    st.write("A fun little tool to predict the percentile placement within your age/sex division in the Akron Marathon. Not very accurate, but _very_ cool.")
     
-    with st.beta_expander('Why not accurate?'):
+    with st.expander('Why not accurate?'):
         st.write('''Oh boy are we glad you asked! This was just a fun little project to practice scraping, cleaning, exploring, and modeling data. The major reasons to NOT take it seriously is:
         
 * While gender, state, and age are all taken in account by the model, the sample size at that level is very small. 
     * There are only 7 people from North Carolina, and more than 3000 from Ohio. 
     * If all 7 finish the marathon at an average of 9.81 minutes/mile, and you finished at 12 minute/mile, your placement would be artifically low.
-    * There was only 1 ten year old in the data
+    * There was only 1 nine year old in the data, they were place in the 10-19 division.
 
 So why not just use your gender and pace to predict placement? Because that's no fun!
 
