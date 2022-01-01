@@ -1,0 +1,8 @@
+streamlit
+sklearn
+pandas
+plotly
+sqlalchemy
+matplotlib
+seaborn
+geopandas
