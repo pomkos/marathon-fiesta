@@ -226,6 +226,7 @@ def app():
     * There are only 7 people from North Carolina, and more than 3000 from Ohio. 
     * If all 7 finish the marathon at an average of 9.81 minutes/mile, and you finished at 12 minute/mile, your placement would be artifically low.
     * There was only 1 nine year old in the data, they were place in the 10-19 division.
+* BMI, training history, pace history, aerobic and anaerobic fitness are not taken account (because I do not have access to that data ... yet)
 
 So why not just use your gender and pace to predict placement? Because that's no fun!
 
