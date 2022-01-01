@@ -172,7 +172,7 @@ def model(dataframe):
     return rf, X_test, y_test
 
 def plot_user(dataframe, user_df):
-    if user_df['Sex_M'][0] == 0:
+    if user_df['Sex_M'][0] == 1:
         sex = 'M'
     else:
         sex = 'F'
