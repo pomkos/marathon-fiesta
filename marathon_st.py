@@ -206,7 +206,21 @@ def app():
     st.title('Marathon Predictor')
 
     st.write('A fun little tool to predict your percentile placement in the Akron Marathon. Not very accurate, but very cool.')
+    
+    with st.beta_expander('Why not accurate?'):
+        st.write('''Oh boy are we glad you asked! This was just a fun little project to practice scraping, cleaning, exploring, and modeling data. The major reasons to NOT take it seriously is:
+        
+* While gender, state, and age are all taken in account by the model, the sample size at that level is very small. 
+    * There are only 7 people from North Carolina, and more than 3000 from Ohio. 
+    * If all 7 finish the marathon at an average of 9.81 minutes/mile, and you finished at 12 minute/mile, your placement would be artifically low.
+    * There was only 1 ten year old in the data
 
+So why not just use your gender and pace to predict placement? Because that's no fun!
+
+__Maybe the best predictor of your placement:__
+
+* Go to the EDA page, scroll down to the boxplot. There you can see how people in each age division placed.
+        ''')
     df = load_data()
     df = feature_engineer(df)
 
