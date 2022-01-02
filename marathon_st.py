@@ -176,6 +176,7 @@ def plot_user(dataframe, user_df):
         sex = 'M'
     else:
         sex = 'F'
+    st.write(sex)
     user_percentile = user_df['predicted'][0]
     user_pace = user_df['pace'][0]
     female = dataframe[dataframe['Sex']=='F']
