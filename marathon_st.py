@@ -111,7 +111,7 @@ def user_data(dataframe):
         sex = st.selectbox("Gender", options=['Female', 'Male'])
         pace = st.number_input('Most recent minutes per mile', value=15.3)
     with col2:
-        age = st.number_input('Age', min_value=10.0, value=32)
+        age = st.number_input('Age', min_value=10, value=32)
     
     state_cols = list(dataframe['State'].unique())
     df_states = state_cols.copy()
