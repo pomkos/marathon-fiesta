@@ -126,7 +126,7 @@ def user_data(dataframe):
     user_df['Age'] = age
     user_df['pace'] = pace
     
-    if sex == 'M':
+    if sex == 'Male':
         user_df['Sex_M'] = [1]
         user_df['Sex_F'] = [0]
     else:
@@ -243,7 +243,6 @@ __Maybe the best predictor of your placement:__
 
     else:
         user_df = user_data(df)
-        st.write(user_df)
         random_forest_model, X_test, y_test = model(df)
         score = random_forest_model.score(X_test, y_test)
         user_prediction = user_predict(user_df, random_forest_model)
