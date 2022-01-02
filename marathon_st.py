@@ -176,7 +176,6 @@ def plot_user(dataframe, user_df):
         sex = 'M'
     else:
         sex = 'F'
-    st.write(user_df['Sex_M'])
     user_percentile = user_df['predicted'][0]
     user_pace = user_df['pace'][0]
     female = dataframe[dataframe['Sex']=='F']
@@ -244,6 +243,7 @@ __Maybe the best predictor of your placement:__
 
     else:
         user_df = user_data(df)
+        st.write(user_data)
         random_forest_model, X_test, y_test = model(df)
         score = random_forest_model.score(X_test, y_test)
         user_prediction = user_predict(user_df, random_forest_model)
