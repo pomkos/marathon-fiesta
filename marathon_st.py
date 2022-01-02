@@ -187,7 +187,7 @@ def plot_user(dataframe, user_df):
     if sex == 'F':
         plt.plot(user_pace, user_percentile, 'r+', markersize=20)
     mal_plot = sns.relplot(x='pace', y='DivPlPercentile', data=male)
-    mal_plot.set_titles('Pace and percentile rank of male runners')
+    mal_plot.fig.suptitle('Pace and percentile rank of male runners')
     if sex == 'M':
         plt.plot(user_pace, user_percentile, 'r+', markersize=20)
     with col1:
