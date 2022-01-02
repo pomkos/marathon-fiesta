@@ -119,7 +119,7 @@ def user_data(dataframe):
     state_cols = ['State_' + state_var for state_var in state_cols]
     
     with col2:
-        state = st.selectbox('State of Origin', options=df_states, index=1)
+        state = st.selectbox('State of Origin', options=df_states, index=27) # index 27 is Ohio
 
 
     user_df = dict()
